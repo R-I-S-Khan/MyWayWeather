@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title> MyWayWeather_Phase-1</title>
+    <style>
+      /* id attributes */
+      #map {
+        height: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #input_area {
+        overflow: hidden;
+        word-wrap: break-word;
+        position: relative;
+        top: 0px;
+        left: 0%;
+        right:50%;
+        z-index: 5;
+
+        padding: 10px;
+        border: 2px solid #989;
+        text-align: center;
+        font-family: 'Roboto','sans-serif';
+        line-height: 20px;
+        background-image: url(https://images.unsplash.com/photo-1531585778618-fa2a2283a4eb?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=b5b06d09e5e180315962be315f040720&auto=format&fit=crop&w=298&q=80);
+
+      }
+      #submit_button{
+        position: relative;
+        width: 100px;
+        font-weight: 700;
+        height: 35px;
+        padding: 3px 3px 3px 3px;
+
+      }
+      #map-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+   </style>
+ </head>
+  <body>
+
+    <div id="input_area">
+      <br> <img src ="https://image.flaticon.com/icons/png/512/499/499409.png" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/789/789446.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/578/578139.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/798/798347.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/798/798355.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/578/578148.svg" style="width:50px;height:50px;">
+      <br> <b>What is the weather like in your way? <img src="https://image.flaticon.com/icons/svg/983/983048.svg" style="width:50px;height:50px;"></b>
+      <br>
+      <br>
+      <strong> Origin : </strong>
+        <input id="origin" type="text" >
+      <strong> Destination: </strong>
+        <input id="destination" type="text"><br><br>
+        <input id="submit_button" type="button" value='SEARCH' src="https://image.flaticon.com/icons/png/512/123/123376.png" >
+    </div>
+
+    <div id="map"> </div> /*Contains the map object*/
+    <!-- References : https://developers.google.com/maps/documentation/javascript/directions#InspectingResults
+                       https://developers.google.com/maps/documentation/javascript/examples/directions-complex -->
+
+    <script>
+       /* Initializes the map*/
+    function initMap() {
+
+         var default_map_location = new google.maps.LatLng(43.0027950, -78.7871450); //lat lon of buffalo
+         var mapOptions = {
+           center: default_map_location,
+           zoom: 13,
+         }
+         var map = new google.maps.Map(document.getElementById('map'), mapOptions);    // Creating a map object
+
+         var submitClickHandler = function() {
+
+           var map = new google.maps.Map(document.getElementById('map'), mapOptions);  // Creating a map object
+
+           geocoder = new google.maps.Geocoder(); // initializing a geocoder
+           geocoder.geocode( { 'address': document.getElementById('origin').value}, function(results, status) {
+              if (status == 'OK') {
+                map.setCenter(results[0].geometry.location);
+              } else {
+                alert('Geocoding failed. Reason: ' + status);
+              }
+            });
+
+           var directionsService = new google.maps.DirectionsService();                  // Initialize a direction service object.
+           var renderer = {
+              map: map
+           }
+           var directionsDisplay = new google.maps.DirectionsRenderer(renderer);  // bind the renderer that was created for directions to the map.
+           var weatherDisplayWindow = new google.maps.InfoWindow();                             //  Instantiating an info window object for holding step text.
+
+           calculateWeatherRoute(directionsService, directionsDisplay, weatherDisplayWindow, map);
+         };
+
+         document.getElementById('submit_button').addEventListener('click', submitClickHandler);
+
+      }
+
+    function calculateWeatherRoute(directionsService, directionsDisplay, weatherDisplayWindow, map) {
+        // Retrieve the origin and destination locations and create a DirectionsRequest using Driving directions. We dont want to overpopulate the map.
+        var request = {
+           origin: document.getElementById('origin').value,
+           destination: document.getElementById('destination').value,
+           travelMode: 'DRIVING'
+        };
+
+        directionsService.route(request, function(response, status) {
+          //console.log(response);
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);  // display the route between origin and destination
+            showSteps(response, weatherDisplayWindow, map);
+          }
+        });
+      }
+
+     // Placing the markers
+    function showSteps(directionResult, weatherDisplayWindow, map) {
+
+      /*function toggleBounce() {
+        if (marker.getAnimation() !== null) {
+          marker.setAnimation(null);
+        } else {
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+        }
+      }*/
+        // This function places the marker for each step, shows the weather info associated with each step
+        // Also attach the marker to an array so we can keep track of it and remove it when calculating new routes.
+        var myWayRoute = directionResult.routes[0].legs[0];
+          // only 1 way point, so 1 route and 1 leg.
+          // Each leg has many steps. Each step has a polyline associated with it that shows the coords in that step. So we need to decode polyline and find the coords.
+          // each polyline has an array of coordinates.
+        for (var i = 0; i < myWayRoute.steps.length; i+=3) {
+            var coords_in_current_step = decode(myWayRoute.steps[i].polyline.points);
+            var latitude = coords_in_current_step[0][0];  // take only the first point in polyline. we dont need all points in polyline.
+            var longitude = coords_in_current_step[0][1];
+            var latitude_longitude = latitude +'<--lat|lon-->'+longitude;
+
+            // setting position of marker to be the start location of step.
+            var position = myWayRoute.steps[i].start_location;
+
+            var marker = new google.maps.Marker({
+              map: map,
+              position: position,
+              title: latitude_longitude,
+              id : 1,
+              animation: google.maps.Animation.DROP
+            });
+
+            // Create an onclick event to open an weatherDisplayWindow at each marker.
+            marker.addListener('click', function() {
+              displayWeatherInfoMarker(this, weatherDisplayWindow);
+
+
+            });
+            //marker.addListener('mouseover', toggleBounce());
+          }
+      }
+
+
+      // this function displays weather information for the marker that is clicked. Clicked marker starts bouncing which helps user to find out which marker has been clicked exactly.
+      //only one marker weather info can be displayed at a time.
+    function displayWeatherInfoMarker(marker, weatherDisplayWindow) {
+        // Check if the weatherDisplayWindow is already opened on this marker.
+         marker.setAnimation(google.maps.Animation.BOUNCE);
+        if (weatherDisplayWindow.marker != marker) { // if not opened
+            //console.log(marker.title);
+            //console.log(marker.id);
+            if(marker.id==1){
+                  var latlonsplit = marker.title.split("<--lat|lon-->");
+                  var latitude  = latlonsplit[0];
+                  var longitude = latlonsplit[1];
+                  //----------------------------------------------------REFERENCE---------------------------------------------------------
+                  //https://openweathermap.desk.com/customer/en/portal/articles/1996493-switching-between-temperature-units
+                  //https://www.taniarascia.com/how-to-connect-to-an-api-with-javascript/
+                  var requestString = "http://api.openweathermap.org/data/2.5/weather?lat="
+                                      + latitude + "&lon=" + longitude
+                                      + "&cluster=yes&format=json"
+                                      + "&APPID=a91a7423c7a5ee0462575bde493b958b&units=imperial";// use imperial units.
+
+                  console.log(requestString);
+
+                  // Create a request variable and assign a new object of XMLHttpRequest class to it.
+                  var request = new XMLHttpRequest();
+                  // Opening a new connection by using the GET request on the URL endpoint.
+                  request.open("get", requestString, true);
+
+                  request.onload = function () { //on loading the request do the stuff mentioned in this function.
+                    // Begin accessing JSON data here
+                    //--------------------------------------------REFERENCE-----------------------------------------------------------------------
+
+                    // https://www.reddit.com/r/FreeCodeCamp/comments/4con5s/how_do_i_use_the_icon_given_in_the_open_weather/
+                    //https://github.com/google/maps-for-work-samples/blob/master/samples/maps/OpenWeatherMapLayer/OpenWeatherMapLayer.pdf
+                    // https://github.com/google/maps-for-work-samples/blob/master/samples/maps/OpenWeatherMapLayer/index.html
+                    // https://gist.github.com/marchawkins/9755430
+                    // https://stackoverflow.com/questions/35804133/google-maps-javascript-api-with-an-openweathermap-tile-layer-overlay
+                        var data = JSON.parse(this.responseText);
+                        marker.title =  "<img src='http://openweathermap.org/img/w/"+ data.weather[0].icon + ".png' style='width:100px;height:80px;'>"
+                        +'<br> Temp : '+ data.main.temp +"&deg;F"
+                        +" <br> Description : "+ data.weather[0].description
+                        + "<br> humidity: " +  data.main.humidity + "%"
+                        +"<br> Pressure: " + data.main.pressure + "psi";
+
+                        marker.id = 100;
+                        weatherDisplayWindow.marker = marker;
+                        weatherDisplayWindow.setContent('<div>' + marker.title+ '</div>');
+                        weatherDisplayWindow.open(map, marker);
+                        // clearing weatherdisplay window and animation if marker weather display window is closed.
+                        weatherDisplayWindow.addListener('closeclick',function(){
+                        weatherDisplayWindow.setMarker = null;
+                        marker.setAnimation(null);
+                    });
+                  }
+
+                  // Sending request
+                  request.send();
+            }
+            else{
+                    weatherDisplayWindow.marker = marker;
+                    weatherDisplayWindow.setContent('<div>' + marker.title + '</div>');
+                    weatherDisplayWindow.open(map, marker);
+                    // Make sure the marker property is cleared if the weatherDisplayWindow is closed.
+                    weatherDisplayWindow.addListener('closeclick',function(){
+                      weatherDisplayWindow.setMarker = null;
+                      marker.setAnimation(null);
+                    });
+            }
+          }
+        }
+
+   // Polyline string Decoding
+   //---------------------------------------------------REFERENCES-----------------------------------------------------------
+   //https://gist.github.com/ismaels/6636986
+   //https://stackoverflow.com/questions/15380712/how-to-decode-polylines-from-google-maps-direction-api-in-php
+   //http://www.brython.info/tests/precompile.html
+    function decode(polyline_str) {
+        var b, changes, coordinates, index, lat, lng, result, shift;
+        [index, lat, lng] = [0, 0, 0];
+        coordinates = [];
+        changes = {"latitude": 0, "longitude": 0};
+        while ((index < polyline_str.length)) {
+            for (var unit, _pj_c = 0, _pj_a = ["latitude", "longitude"], _pj_b = _pj_a.length; (_pj_c < _pj_b); _pj_c += 1) {
+                unit = _pj_a[_pj_c];
+                [shift, result] = [0, 0];
+                while (true) {
+                    b = polyline_str.charCodeAt(index) - 63;
+                    index += 1;
+                    result |= ((b & 31) << shift);
+                    shift += 5;
+                    if ((! (b >= 32))) {
+                        break;
+                    }
+                }
+                if ((result & 1)) {
+                    changes[unit] = (~ (result >> 1));
+                } else {
+                    changes[unit] = (result >> 1);
+                }
+            }
+            lat += changes["latitude"];
+            lng += changes["longitude"];
+            coordinates.push([(lat / 100000.0), (lng / 100000.0)]);
+        }
+        return coordinates;
+     }
+
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwx5bqxuLiHc4vyv04xkQp9YGGy1L4xVA&callback=initMap"; >  </script>
+  </body>
+</html>
