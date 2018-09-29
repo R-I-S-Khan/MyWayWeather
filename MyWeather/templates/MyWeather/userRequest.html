@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<!--https://www.w3schools.com/html/tryit.asp?filename=tryhtml_form_submit-->
+<html>
+<body>
+
+<h2>HTML Forms</h2>
+
+<form method ="POST">
+    {% csrf_token %}
+  Origin:<br>
+  <input type="text" name="origin_place" >
+  <br>
+  Destination:<br>
+  <input type="text" name="destination_place">
+  <br><br>
+  <input type="submit" value="Submit">
+</form>
+
+
+</body>
+</html>
