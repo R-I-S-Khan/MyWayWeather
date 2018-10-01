@@ -78,11 +78,11 @@
            center: default_map_location,
            zoom: 13,
          }
-         var map = new google.maps.Map(document.getElementById('map'), mapOptions);    // Creating a map object
+         var map = new google.maps.Map(document.getElementById('map'), mapOptions);    // Creating a Google Map object from Map class
 
          var submitClickHandler = function() {
 
-           var map = new google.maps.Map(document.getElementById('map'), mapOptions);  // Creating a map object
+           var map = new google.maps.Map(document.getElementById('map'), mapOptions);  // Creating another Map Object from Map Class
 
            geocoder = new google.maps.Geocoder(); // initializing a geocoder
            geocoder.geocode( { 'address': document.getElementById('origin').value}, function(results, status) {
@@ -127,13 +127,13 @@
      // Placing the markers
     function showSteps(directionResult, weatherDisplayWindow, map) {
 
-      /*function toggleBounce() {
+      function toggleBounce() {
         if (marker.getAnimation() !== null) {
           marker.setAnimation(null);
         } else {
           marker.setAnimation(google.maps.Animation.BOUNCE);
         }
-      }*/
+      }
         // This function places the marker for each step, shows the weather info associated with each step
         // Also attach the marker to an array so we can keep track of it and remove it when calculating new routes.
         var myWayRoute = directionResult.routes[0].legs[0];
@@ -141,7 +141,7 @@
           // Each leg has many steps. Each step has a polyline associated with it that shows the coords in that step. So we need to decode polyline and find the coords.
           // each polyline has an array of coordinates.
         for (var i = 0; i < myWayRoute.steps.length; i+=3) {
-            var coords_in_current_step = decode(myWayRoute.steps[i].polyline.points);
+            var coords_in_current_step = decode_polyline(myWayRoute.steps[i].polyline.points);
             var latitude = coords_in_current_step[0][0];  // take only the first point in polyline. we dont need all points in polyline.
             var longitude = coords_in_current_step[0][1];
             var latitude_longitude = latitude +'<--lat|lon-->'+longitude;
@@ -213,12 +213,15 @@
 
                         marker.id = 100;
                         weatherDisplayWindow.marker = marker;
+                        var icon = {url:'https://image.flaticon.com/icons/svg/727/727585.svg', scaledSize: new google.maps.Size(30, 42)};
+                        marker.setIcon(icon);
                         weatherDisplayWindow.setContent('<div>' + marker.title+ '</div>');
                         weatherDisplayWindow.open(map, marker);
                         // clearing weatherdisplay window and animation if marker weather display window is closed.
                         weatherDisplayWindow.addListener('closeclick',function(){
                         weatherDisplayWindow.setMarker = null;
                         marker.setAnimation(null);
+                        marker.setIcon(null);
                     });
                   }
 
@@ -227,11 +230,14 @@
             }
             else{
                     weatherDisplayWindow.marker = marker;
+                    var icon = {url:'https://image.flaticon.com/icons/svg/727/727585.svg', scaledSize: new google.maps.Size(30, 42)};
+                    marker.setIcon(icon);
                     weatherDisplayWindow.setContent('<div>' + marker.title + '</div>');
                     weatherDisplayWindow.open(map, marker);
                     // Make sure the marker property is cleared if the weatherDisplayWindow is closed.
                     weatherDisplayWindow.addListener('closeclick',function(){
                       weatherDisplayWindow.setMarker = null;
+                      marker.setIcon(null);
                       marker.setAnimation(null);
                     });
             }
@@ -243,14 +249,22 @@
    //https://gist.github.com/ismaels/6636986
    //https://stackoverflow.com/questions/15380712/how-to-decode-polylines-from-google-maps-direction-api-in-php
    //http://www.brython.info/tests/precompile.html
-    function decode(polyline_str) {
-        var b, changes, coordinates, index, lat, lng, result, shift;
+    function decode_polyline(polyline_str) {
+        var b;
+        var changes;
+        var coordinates;
+        var index;
+        var result;
+        var shift;
+        var lat;
+        var lng;
+
         [index, lat, lng] = [0, 0, 0];
-        coordinates = [];
+        coords = [];
         changes = {"latitude": 0, "longitude": 0};
         while ((index < polyline_str.length)) {
-            for (var unit, _pj_c = 0, _pj_a = ["latitude", "longitude"], _pj_b = _pj_a.length; (_pj_c < _pj_b); _pj_c += 1) {
-                unit = _pj_a[_pj_c];
+            for (var unit, c = 0, a = ["latitude", "longitude"], pb = a.length; (c < pb); c += 1) {
+                unit = a[c];
                 [shift, result] = [0, 0];
                 while (true) {
                     b = polyline_str.charCodeAt(index) - 63;
@@ -269,9 +283,9 @@
             }
             lat += changes["latitude"];
             lng += changes["longitude"];
-            coordinates.push([(lat / 100000.0), (lng / 100000.0)]);
+            coords.push([(lat / 100000.0), (lng / 100000.0)]);
         }
-        return coordinates;
+        return coords;
      }
 
     </script>

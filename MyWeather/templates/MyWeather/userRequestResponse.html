@@ -1,10 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html>
+  <head>
+    <style>
 
-</body>
+      .display_box {
+        height: 100%;
+        position: relative;
+      }
+      html,
+      body { /*how the html and body elements are going to be like*/
+        font-family: Arial, sans-serif;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      input {
+        font-size: 13px;
+      }
+      h1 {
+        color: green;
+        font-size: 22px;
+        margin: 12px 12px 12px 12px;
+        text-align: center;
+      }
+      #map {
+
+        height: 100%;
+        width: 100%;
+      }
+      #hide-points,#show-points {
+        width: 20%;
+        height: 30px;
+        padding: 10px 10px 30px 10px;
+        font-weight: 700;
+        font-size: 22px;
+      }
+
+      .display_options_box {
+
+        background-image: url(https://images.unsplash.com/photo-1538218687867-ad17919e7fbc?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=cced7bcbac4f837fcdf8d47389a311e5&auto=format&fit=crop&w=700&q=80);
+        border: 3px solid #998;
+        border-radius: 3px;
+        border-color: black;
+
+        position: relative;
+        top: 0px;
+        left: 0%;
+        right:50%;
+        z-index: 5;
+        line-height: 35px;
+        padding: 10px 10px 30px 10px;
+        text-align: center;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="display_box">
+      <div class="display_options_box">
+
+        <!--<h1><b><font size="+2"> My Way Weather </font><b></h1>-->
+        <div>
+          <br> <img src ="https://image.flaticon.com/icons/svg/578/578980.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/511/511145.svg" style="width:50px;height:50px;">
+                &emsp;
+                &emsp;
+                <img src ="https://image.flaticon.com/icons/svg/511/511143.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/753/753352.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/511/511145.svg" style="width:50px;height:50px;">
+                &emsp;
+                &emsp;
+                <img src ="https://image.flaticon.com/icons/svg/511/511143.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/511/511125.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/511/511121.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/1131/1131424.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/652/652461.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/511/511125.svg" style="width:50px;height:50px;">
+                <img src ="https://image.flaticon.com/icons/svg/511/511138.svg" style="width:50px;height:50px;">
+                &emsp;
+
+                  <img src ="https://image.flaticon.com/icons/svg/861/861059.svg" style="width:100px;height:100px;">
+
+          <br> <!-- enabling feature of clicking button to show and hide points-->
+          <input id="show-points" type="button" value="Show Points">
+
+          <input id="hide-points" type="button" value="Hide Points">
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
+    <script>
+      //-----------------------------------REFERENCE--------------------------------------------
+      //https://stackoverflow.com/questions/9244824/how-to-remove-quot-from-my-json-in-javascript
+      var weather_info_data_from_server = '{{weather_info}}'; // catching the context as js variable
+      var weather_data = JSON.parse(weather_info_data_from_server.replace(/&quot;/g,'"'));
+      console.log(weather_data);
+
+      var map;
+      // creating a list to store all markers
+      var markers = [];
+      function initMap() {
+        // creating a new Map object
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: weather_data[0].latitude, lng: weather_data[0].longitude},
+          zoom: 13,
+          mapTypeControl: false
+        });
+        var weatherDisplayWindow = new google.maps.InfoWindow(); // creating infowindow for displaying weather info
+
+        var directionsService = new google.maps.DirectionsService();                  // Initialize a direction service object.
+        var renderer = {
+           map: map
+        }
+        var directionsDisplay = new google.maps.DirectionsRenderer(renderer);  // bind the renderer that was created for directions to the map.
+        var request = {
+           origin: weather_data[0].origin,
+           destination: weather_data[0].destination,
+           travelMode: 'DRIVING'
+        };
+        directionsService.route(request, function(response, status) {
+          //console.log(response);
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);  // display the route between origin and destination
+
+          }
+        });
+        for (var i = 0; i < weather_data.length; i++) {
+          // Get the position from the weather data array that was passed from the server
+          var position = {lat: weather_data[i].latitude, lng: weather_data[i].longitude};
+          var title =  "<img src='http://openweathermap.org/img/w/"+ weather_data[i].icon + ".png' style='width:80px;height:60px;'>"
+                        +'<br> City: ' + weather_data[i].city_name
+                        +" <br> Description: "+ weather_data[i].description
+                        +'<br> Temp: '+ weather_data[i].temperature +"&deg;F"
+                        +"<br> Pressure: " + weather_data[i].pressure + "psi"
+                        + "<br> humidity: " +  weather_data[i].humidity + "%";
+
+
+
+
+          // Creating a marker for each position with all the relevant info in its title.
+           var marker = new google.maps.Marker({
+            position: position,
+            title: title,
+            animation: google.maps.Animation.DROP,
+            id: i
+          });
+
+
+          // pushing each marker into the array of markers
+          markers.push(marker);
+          // on click event for opening infowindow associated with each marker.
+          marker.addListener('click', function() {
+            displayWeatherInfoMarker(this, weatherDisplayWindow);
+          });
+        }
+        document.getElementById('show-points').addEventListener('click', showPoints);
+
+        document.getElementById('hide-points').addEventListener('click', hidePoints);
+      }
+      // this function displays weather information for the marker that is clicked. Clicked marker starts bouncing which helps user to find out which marker has been clicked exactly.
+      //only one marker weather info can be displayed at a time.
+      function  displayWeatherInfoMarker(marker, infowindow) {
+        // Check if the weatherDisplayWindow is already opened on this marker.
+        if (infowindow.marker != marker) {
+
+          infowindow.marker = marker;
+          //---------------------------------------REFERENCE---------------------------------------------------
+          //https://stackoverflow.com/questions/36358811/how-to-change-marker-size-when-using-google-maps-seticon
+          //https://developers.google.com/maps/documentation/javascript/markers
+          if (marker.getAnimation() == null) {
+              marker.setAnimation(google.maps.Animation.BOUNCE);
+              var icon = {url:'https://image.flaticon.com/icons/svg/727/727585.svg', scaledSize: new google.maps.Size(30, 42)};
+              marker.setIcon(icon);
+          }
+
+          infowindow.setContent('<div>' + marker.title + '</div>');
+          infowindow.open(map, marker);
+          // Make sure the marker property is cleared if the infowindow is closed.
+          infowindow.addListener('closeclick', function() {
+            if (marker.getAnimation() != null) {
+                marker.setAnimation(null);
+                marker.setIcon(null);
+            }
+            infowindow.marker = null;
+          });
+        }
+      }
+      //enables toggling of marker
+      function toggleBounce() {
+        if (marker.getAnimation() !== null) {
+          marker.setAnimation(null);
+        } else {
+          marker.setAnimation(google.maps.Animation.BOUNCE);
+        }
+      }
+      // This function displays all the info associated with each marker by looping through the marker array
+      function showPoints() {
+        var bounds = new google.maps.LatLngBounds();
+        // After extending the boundaries for each marker in the map, display the info associated with each marker
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(map);
+          bounds.extend(markers[i].position);
+        }
+        map.fitBounds(bounds);
+      }
+      // hidePoints loops through the markers array and hides all the points for easy determination of way route
+      function hidePoints() {
+        for (var i = 0; i < markers.length; i++) {
+          markers[i].setMap(null);  // removing marker from map object.
+        }
+      }
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxMmdCcVQJES0N7M_t82EMvdn2p6xYUAw&v=3&callback=initMap">
+    </script>
+
+  </body>
 </html>

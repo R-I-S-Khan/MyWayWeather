@@ -1,19 +1,87 @@
 <!DOCTYPE html>
 <!--https://www.w3schools.com/html/tryit.asp?filename=tryhtml_form_submit-->
 <html>
+<head>
+  <!--<meta name="viewport" content="initial-scale=1.0, user-scalable=no">-->
+  <meta charset="utf-8">
+  <style>
+    /* id attributes */
+    /*#map {
+      height: 100%;
+    }*/
+    /*html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }*/
+    html {
+      background: url(https://images.unsplash.com/photo-1479232284091-c8829ec114ad?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=05a92b002f109a802854dc39ff03efcd&auto=format&fit=crop&w=1051&q=80) no-repeat center center fixed;
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      background-size: cover;
+    }
+    #size_input {
+      width:50px;
+      height:50px;
+    }
+    #input_area {
+      overflow: hidden;
+      word-wrap: break-word;
+      position: relative;
+      top: 20px;
+      bottom: 100%;
+      left: 0%;
+      right:50%;
+      z-index: 5;
+      width: 100%;
+      height: 100%;
+      /*padding: 10px;
+      border: 2px solid #989;*/
+      text-align: center;
+      font-family: 'Roboto','sans-serif';
+      /*line-height: 20px;*/
+      /*background-image: url(https://images.unsplash.com/photo-1531585778618-fa2a2283a4eb?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=b5b06d09e5e180315962be315f040720&auto=format&fit=crop&w=298&q=80);*/
+      /*background-image: :url(https://images.unsplash.com/photo-1516912481808-3406841bd33c?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=859ed08b994af2b44509aeb00f56d7f9&auto=format&fit=crop&w=683&q=80);*/
+
+      /*background-size:cover;*/
+
+    }
+    #submit_button{
+      /*position: relative;*/
+      width: 150px;
+      right: 70%;
+      font-weight: 700;
+      height: 45px;
+      padding: 3px 3px 3px 3px;
+
+    }
+
+ </style>
+</head>
 <body>
 
-<h2>HTML Forms</h2>
 
 <form method ="POST">
     {% csrf_token %}
-  Origin:<br>
-  <input type="text" name="origin_place" >
-  <br>
-  Destination:<br>
-  <input type="text" name="destination_place">
-  <br><br>
-  <input type="submit" value="Submit">
+    <div id="input_area">
+      <br> <img src ="https://image.flaticon.com/icons/png/512/499/499409.png" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/789/789446.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/578/578139.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/798/798347.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/798/798355.svg" style="width:50px;height:50px;">
+            <img src ="https://image.flaticon.com/icons/svg/578/578148.svg" style="width:50px;height:50px;">
+      <br> <b><font size="+3">What is the weather like in your way? </font><img src="https://image.flaticon.com/icons/svg/983/983048.svg" style="width:50px;height:50px;"></b>
+      <br>
+      <br>
+      <b> <font size="+2"> Origin : </font></b>
+        <input id="origin" type="text" name="origin_place" >
+      <b > <font size="+2">Destination: </font> </b>
+        <input id="destination" type="text" name="destination_place"><br><br>
+        <input id="submit_button" type="submit" value='SEARCH' src="https://image.flaticon.com/icons/png/512/123/123376.png" >
+      <br><br><br><br>
+      <img src ="https://image.flaticon.com/icons/svg/149/149978.svg" style="width:300px;height:300px;">
+    </div>
 </form>
 
 

@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
+import collections
 import googlemaps
 import requests
 import json
+import reverse_geocoder as rg
 # Create your views here.
 
 def myWeather(request):
@@ -28,10 +30,14 @@ def userRequest(request):
 
          for i, step_in_leg in enumerate(steps_in_leg):
              if i % 4 == 1 or i % 4 == 2:
-                 continue;
+                 continue
 
              lat = step_in_leg['end_location']['lat']
              lon = step_in_leg['end_location']['lng']
+
+             coords = (lat,lon)
+             rev_geo_result = rg.search(coords)
+             city_nam = rev_geo_result[0]['name']
 
              #------------CALLING WEATHER API NOW-------------
 
@@ -41,6 +47,10 @@ def userRequest(request):
              weather_res_details = requests.get(url.format(lat,lon,appid)).json()
 
              weather_point = {
+                 #'city': city,
+                 'city_name': city_nam,
+                 'origin': origin_place,
+                 'destination': destination_place,
                  'latitude': lat,
                  'longitude': lon,
                  'temperature': weather_res_details['main']['temp'],
@@ -53,7 +63,7 @@ def userRequest(request):
              weather_points.append(weather_point) # putting weather points in weather_points list
 
          context = {'weather_info': json.dumps(weather_points)}
-         return HttpResponse(weather_points)
+         #return HttpResponse(weather_points)
 
          return render(request,'MyWeather/userRequestResponse.html',context)
     else:
