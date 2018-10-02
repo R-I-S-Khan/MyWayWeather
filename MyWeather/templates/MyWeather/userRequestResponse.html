@@ -129,7 +129,7 @@
           // Get the position from the weather data array that was passed from the server
           var position = {lat: weather_data[i].latitude, lng: weather_data[i].longitude};
           var title =  "<img src='http://openweathermap.org/img/w/"+ weather_data[i].icon + ".png' style='width:80px;height:60px;'>"
-                        +'<br> City: ' + weather_data[i].city_name
+                        +'<br> City/Town: ' + weather_data[i].city_name
                         +" <br> Description: "+ weather_data[i].description
                         +'<br> Temp: '+ weather_data[i].temperature +"&deg;F"
                         +"<br> Pressure: " + weather_data[i].pressure + "psi"
