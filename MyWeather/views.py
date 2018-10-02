@@ -5,6 +5,8 @@ import collections
 import googlemaps
 import requests
 import json
+#------------------REFERENCE-------------------------------------------
+#https://github.com/thampiman/reverse-geocoder
 import reverse_geocoder as rg
 
 from .models import MyWeatherDB #Importing the model of database that we made in model.py
@@ -21,6 +23,7 @@ def userRequest(request):
          #--------------------------REFERENCE---------------------------------------
          # https://djangobook.com/django-models/
          # https://djangobook.com/django-models-basic-data-access/
+         #https://scotch.io/tutorials/building-a-weather-app-in-django
 
          weather_db_rec = MyWeatherDB.objects.filter(Origin = origin_place, Destination = destination_place)
 
@@ -31,6 +34,9 @@ def userRequest(request):
                      'origin': rec.Origin,
                      'destination': rec.Destination,
                      'city_name': rec.City,
+                     'state_name': rec.State,
+                     'county_name': rec.County,
+                     'country_name': rec.Country,
                      'latitude': float(rec.Latitude),
                      'longitude': float(rec.Longitude),
                      'temperature': rec.Temperature,
@@ -66,7 +72,9 @@ def userRequest(request):
                  coords = (lat,lon)
                  rev_geo_result = rg.search(coords)
                  city_nam = rev_geo_result[0]['name']
-
+                 state_nam = rev_geo_result[0]['admin1']
+                 county_nam = rev_geo_result[0]['admin2']
+                 country_nam = rev_geo_result[0]['cc']
                  #------------CALLING WEATHER API NOW-------------
 
                  url = 'http://api.openweathermap.org/data/2.5/weather?lat={}&lon={}&units=imperial&appid={}' # use imperial units.
@@ -77,6 +85,9 @@ def userRequest(request):
                  weather_point = {
                      #'city': city,
                      'city_name': city_nam,
+                     'state_name': state_nam,
+                     'county_name': county_nam,
+                     'country_name':country_nam,
                      'origin': origin_place,
                      'destination': destination_place,
                      'latitude': lat,
@@ -92,6 +103,9 @@ def userRequest(request):
              for weather_point in weather_points:
                  db_temp = MyWeatherDB(
                                      City = weather_point['city_name'],
+                                     County = weather_point['county_name'],
+                                     State = weather_point['state_name'],
+                                     Country = weather_point['country_name'],
                                      Origin= weather_point['origin'],
                                      Destination= weather_point['destination'],
                                      Latitude=weather_point['latitude'],
@@ -104,7 +118,6 @@ def userRequest(request):
                                      )
                  db_temp.save()
              context = {'weather_info': json.dumps(weather_points)}
-             #return HttpResponse(weather_points)
 
              return render(request,'MyWeather/userRequestResponse.html',context)
     else:

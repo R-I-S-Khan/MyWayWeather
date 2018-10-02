@@ -6,10 +6,13 @@ class MyWeatherDB(models.Model):
 
 
     City =  models.CharField(max_length=50)
+    State = models.CharField(max_length=50,default='New York')
+    County = models.CharField(max_length=50, default='unknown')
+    Country = models.CharField(max_length=50, default='US')
     Origin = models.CharField(max_length=50)
     Destination  = models.CharField(max_length=50)
 
-    Latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    Latitude = models.DecimalField(max_digits=9, decimal_places=6) #otherwise decimal field will through errors
     Longitude = models.DecimalField(max_digits=9, decimal_places=6)
 
     Humidity = models.FloatField()
