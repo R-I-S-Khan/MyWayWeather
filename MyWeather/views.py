@@ -43,7 +43,9 @@ def userRequest(request):
                      'humidity': rec.Humidity,
                      'pressure': rec.Pressure,
                      'description': rec.Description,
-                     'icon': rec.Icon
+                     'icon': rec.Icon,
+                     'temp_min': rec.Temp_min,
+                     'temp_max': rec.Temp_max
                  }
                  weather_points.append(weather_point)
 
@@ -96,7 +98,9 @@ def userRequest(request):
                      'pressure': weather_res_details['main']['pressure'],
                      'humidity': weather_res_details['main']['humidity'],
                      'description': weather_res_details['weather'][0]['description'],
-                     'icon': weather_res_details['weather'][0]['icon']
+                     'icon': weather_res_details['weather'][0]['icon'],
+                     'temp_min': weather_res_details['main']['temp_min'],
+                     'temp_max': weather_res_details['main']['temp_max']
                  }
 
                  weather_points.append(weather_point) # putting weather points in weather_points list
@@ -114,7 +118,9 @@ def userRequest(request):
                                      Pressure=weather_point['pressure'],
                                      Humidity=weather_point['humidity'],
                                      Description=weather_point['description'],
-                                     Icon=weather_point['icon']
+                                     Icon=weather_point['icon'],
+                                     Temp_min =weather_point['temp_min'],
+                                     Temp_max =weather_point['temp_max']
                                      )
                  db_temp.save()
              context = {'weather_info': json.dumps(weather_points)}

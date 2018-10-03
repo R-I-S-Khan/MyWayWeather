@@ -18,6 +18,8 @@ class MyWeatherDB(models.Model):
     Humidity = models.FloatField()
     Pressure = models.FloatField()
     Temperature = models.FloatField()
+    Temp_max = models.FloatField(default='75.92')
+    Temp_min = models.FloatField(default='61.52')
 
     Icon = models.CharField(max_length=20)
     Description = models.CharField(max_length=300)
