@@ -26,6 +26,8 @@ As simple as that! :D
 - Place the origin and destination in the appropriate fields and click on 'SEARCH'
 - Wait for some time until the application gathers the data and shows you the output.
 
-## Youtube Video Link
+## Youtube Video Link of Demo
 
-	https://www.youtube.com/watch?v=0jvxMKm6AEo&feature=youtu.be
+	https://www.youtube.com/watch?v=0jvxMKm6AEo&feature=youtu.be (Local host)
+
+  https://youtu.be/7EPgor5TpUU (Hosted in Cloud)
