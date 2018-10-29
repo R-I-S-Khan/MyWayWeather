@@ -28,6 +28,6 @@ As simple as that! :D
 
 ## Youtube Video Link of Demo
 
-	https://www.youtube.com/watch?v=0jvxMKm6AEo&feature=youtu.be (Local host)
+https://www.youtube.com/watch?v=0jvxMKm6AEo&feature=youtu.be (Local host)
 
-  https://youtu.be/7EPgor5TpUU (Hosted in Cloud)
+https://youtu.be/7EPgor5TpUU (Hosted in Cloud)
