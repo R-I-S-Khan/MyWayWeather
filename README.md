@@ -16,7 +16,7 @@ Travellers need to know the weather along the route that they need to take. This
 
 ## How to Use the Application from Web
 Just go to - http://redwankhan.pythonanywhere.com/myWeather/userRequest/
-As simple as that! :D
+As simple as that! :D Might not work after 1 year because Google API keys will expire. :(  
 
 ## How to Run the Application as LocalHost
 
