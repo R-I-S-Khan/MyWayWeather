@@ -31,3 +31,5 @@ As simple as that! :D
 https://www.youtube.com/watch?v=0jvxMKm6AEo&feature=youtu.be (Local host)
 
 https://youtu.be/7EPgor5TpUU (Hosted in Cloud)
+
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/My-Way-Weather/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
